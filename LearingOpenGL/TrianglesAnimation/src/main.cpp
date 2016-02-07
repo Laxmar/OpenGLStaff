@@ -5,6 +5,8 @@
 #include <glm\glm.hpp>
 #include <glut.h>
 
+#include "shader.h"
+
 using namespace std;
 
 void initVertexArray();
@@ -22,7 +24,10 @@ int main(int argc, char *argv[])
 
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(1, 0, 0, 1);
+	glClearColor(0, 0.7, 0.7, 1);
+	GLuint programID = LoadShaders("shaders/simpleVertexShader.vert", "shaders/simpleFragmentShader.frag");
+	glUseProgram(programID);
+
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyCallback);		
