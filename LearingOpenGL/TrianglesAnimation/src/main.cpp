@@ -12,7 +12,15 @@ using namespace std;
 void initVertexArray();
 void createTriangle();
 void renderScence();
-void keyCallback(unsigned char key, int x, int y);
+void keyboardCallback(unsigned char key, int x, int y);
+void idle();
+
+// Array of rotation angles (in degrees) for each coordinate axis
+enum { Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3 };
+int Axis = Xaxis;
+GLfloat Theta[NumAxes] = { 0.0, 0.0, 0.0 };
+GLuint theta; // The location of the "theta" shader uniform variable
+
 
 int main(int argc, char *argv[])
 {
@@ -25,12 +33,14 @@ int main(int argc, char *argv[])
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0, 0.7, 0.7, 1);
-	GLuint programID = LoadShaders("shaders/simpleVertexShader.vert", "shaders/simpleFragmentShader.frag");
+	GLuint programID = LoadShaders("shaders/rotationVerShader.vert", "shaders/simpleFragmentShader.frag");//"shaders/simpleVertexShader.vert"
 	glUseProgram(programID);
+	theta = glGetUniformLocation(programID, "theta");
 
 
 	glutDisplayFunc(renderScence);		
-	glutKeyboardFunc(keyCallback);		
+	glutKeyboardFunc(keyboardCallback);		
+	glutIdleFunc(idle);
 
 	initVertexArray();
 	createTriangle();
@@ -40,10 +50,11 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void renderScence(void)
+void renderScence()
 {
 	glEnableVertexAttribArray(0);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	glUniform3fv(theta, 1, Theta);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
 
@@ -51,9 +62,24 @@ void renderScence(void)
 	glutSwapBuffers();
 }
 
-void keyCallback(unsigned char key, int x, int y)
+void idle()
 {
-	if (key == 'q') exit(0);
+	Axis = 1;
+	Theta[Axis] += 0.01;
+	Axis = 2;
+	Theta[Axis] += 0.01;
+	
+	if (Theta[Axis] > 360.0) {
+		Theta[Axis] -= 360.0;
+	}
+	glutPostRedisplay(); // TODO check
+}
+
+void keyboardCallback(unsigned char key, int x, int y)
+{
+	const int escCode = 27;
+	if (key == 'q' || (int)key == escCode)
+		exit(EXIT_SUCCESS);
 }
 
 void initVertexArray() {
@@ -64,13 +90,11 @@ void initVertexArray() {
 
 void createTriangle() {
 
-
 	static const GLfloat g_vertex_buffer_data[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f,  0.5f, 0.0f,
 	};
-
 	GLuint vertexBuffer;
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);

@@ -34,7 +34,10 @@
     <None Include="shader\simpleVertexShader.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shader\simpleFragmentShader.frag">
+    <None Include="shader\rotationVerShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="shaders\simpleFragmentShader.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

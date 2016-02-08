@@ -26,7 +26,8 @@
     <ClInclude Include="include\shader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\simpleFragmentShader.frag" />
+    <None Include="shaders\simpleFragmentShader.frag" />
+    <None Include="shader\rotationVerShader.vert" />
     <None Include="shader\simpleVertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
