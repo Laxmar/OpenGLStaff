@@ -24,9 +24,15 @@
     <ClCompile Include="src\loadShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Triangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,10 +40,10 @@
     <None Include="shader\simpleVertexShader.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shader\rotationVerShader.vert">
+    <None Include="shaders\simpleFragmentShader.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="shaders\simpleFragmentShader.frag">
+    <None Include="shaders\rotationVerShader.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

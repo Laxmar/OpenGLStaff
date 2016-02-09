@@ -21,13 +21,15 @@
   <ItemGroup>
     <ClCompile Include="src\loadShader.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\shader.h" />
+    <ClInclude Include="include\Triangle.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\rotationVerShader.vert" />
     <None Include="shaders\simpleFragmentShader.frag" />
-    <None Include="shader\rotationVerShader.vert" />
     <None Include="shader\simpleVertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

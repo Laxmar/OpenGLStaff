@@ -3,12 +3,14 @@
 
 #include <GL\glew.h>
 #include <glm\glm.hpp>
+#include "glm/gtx/rotate_vector.hpp"
 #include <glut.h>
 
 #include "shader.h"
+#include "Triangle.h"
+#include <memory>
 
 using namespace std;
-
 void initVertexArray();
 void createTriangle();
 void renderScence();
@@ -21,6 +23,9 @@ int Axis = Xaxis;
 GLfloat Theta[NumAxes] = { 0.0, 0.0, 0.0 };
 GLuint theta; // The location of the "theta" shader uniform variable
 
+unique_ptr<Triangle> firstTriangle;
+unique_ptr<Triangle> secondTriangle;
+
 
 int main(int argc, char *argv[])
 {
@@ -29,20 +34,17 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(800, 600);		
 	window = glutCreateWindow("Triangles Animation");	
-
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0, 0.7, 0.7, 1);
-	GLuint programID = LoadShaders("shaders/rotationVerShader.vert", "shaders/simpleFragmentShader.frag");//"shaders/simpleVertexShader.vert"
+	glClearColor(0.0f, 0.7f, 0.7f, 1.0f);
+	GLuint programID = LoadShaders("rotationVerShader.vert", "simpleFragmentShader.frag");
 	glUseProgram(programID);
 	theta = glGetUniformLocation(programID, "theta");
-
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyboardCallback);		
 	glutIdleFunc(idle);
 
-	initVertexArray();
 	createTriangle();
 
 	glutMainLoop();			
@@ -52,27 +54,24 @@ int main(int argc, char *argv[])
 
 void renderScence()
 {
-	glEnableVertexAttribArray(0);
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+	firstTriangle->Draw();
+	secondTriangle->Draw();
 	glUniform3fv(theta, 1, Theta);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDisableVertexAttribArray(0);
-
-
 	glutSwapBuffers();
 }
 
 void idle()
 {
-	Axis = 1;
-	Theta[Axis] += 0.01;
-	Axis = 2;
-	Theta[Axis] += 0.01;
-	
-	if (Theta[Axis] > 360.0) {
-		Theta[Axis] -= 360.0;
+	for (int Axis = 0; Axis < 1; Axis++)
+	{
+		Theta[Axis] += 0.01f;
+		if (Theta[Axis] > 360.0) {
+			Theta[Axis] -= 360.0;
+		}
 	}
-	glutPostRedisplay(); // TODO check
+
+	glutPostRedisplay();
 }
 
 void keyboardCallback(unsigned char key, int x, int y)
@@ -82,26 +81,18 @@ void keyboardCallback(unsigned char key, int x, int y)
 		exit(EXIT_SUCCESS);
 }
 
-void initVertexArray() {
-	GLuint VertexArrayID;
-	glGenVertexArrays(1, &VertexArrayID);
-	glBindVertexArray(VertexArrayID);
-}
-
 void createTriangle() {
 
-	static const GLfloat g_vertex_buffer_data[] = {
+	 GLfloat firstTriangleVertices[] = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		0.0f,  0.5f, 0.0f,
 	};
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT,  GL_FALSE, 0,(void*)0);
-	glDisableVertexAttribArray(0);
+	firstTriangle = std::make_unique<Triangle>(firstTriangleVertices);
+	GLfloat secondTriangleVertices[] = {
+		-1.0f, -1.0f, 0.0f,
+		-0.5f, -1.0f, 0.0f,
+		-1.0f, -0.5f, 0.0f,
+	};
+	secondTriangle = std::make_unique<Triangle>(secondTriangleVertices);
 }
