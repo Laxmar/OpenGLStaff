@@ -3,6 +3,7 @@
 in vec4 vPosition;
 
 uniform vec3 theta;
+uniform vec3 center;
 
 void main()
 {
@@ -32,6 +33,20 @@ void main()
 	0.0, 0.0, 1.0, 0.0,
 	0.0, 0.0, 0.0, 1.0 );
 
-	gl_Position =  rx * ry * rz * vPosition;
-	//gl_Position = vec4(vPosition.x + 0.2, vPosition.y, vPosition.z, vPosition.w);
+		
+	mat4 t1 = mat4(
+	1.0, 0.0, 0.0, -0.33,
+	0.0, 1.0, 0.0, 0.16,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0 );
+
+	mat4 t2 = mat4(
+	1.0, 0.0, 0.0, 0.33,
+	0.0, 1.0, 0.0, 0.16,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0 );
+
+
+	//gl_Position =  vPosition *t1* rx * ry * rz * t2 ;
+	gl_Position =  vPosition * rx * ry * rz;
 }

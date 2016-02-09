@@ -63,7 +63,7 @@ void renderScence()
 
 void idle()
 {
-	for (int Axis = 0; Axis < 1; Axis++)
+	for (int Axis = 0; Axis < 2; Axis++)
 	{
 		Theta[Axis] += 0.01f;
 		if (Theta[Axis] > 360.0) {
@@ -88,6 +88,8 @@ void createTriangle() {
 		0.5f, -0.5f, 0.0f,
 		0.0f,  0.5f, 0.0f,
 	};
+
+
 	firstTriangle = std::make_unique<Triangle>(firstTriangleVertices);
 	GLfloat secondTriangleVertices[] = {
 		-1.0f, -1.0f, 0.0f,
@@ -95,4 +97,6 @@ void createTriangle() {
 		-1.0f, -0.5f, 0.0f,
 	};
 	secondTriangle = std::make_unique<Triangle>(secondTriangleVertices);
+	printf("cetner of mass 1tri %f %f %f \n", firstTriangle->GetCenterOfMass().x, firstTriangle->GetCenterOfMass().y, firstTriangle->GetCenterOfMass().z);
+	printf("cetner of mass 2tri %f %f %f \n", secondTriangle->GetCenterOfMass().x, secondTriangle->GetCenterOfMass().y, secondTriangle->GetCenterOfMass().z);
 }
