@@ -1,26 +1,25 @@
 #include <stdio.h>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include "GL\glew.h"
 #include "glut.h"
-
-#include <glm\glm.hpp>
+#include "glm\glm.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
 #include "shader.h"
 #include "Triangle.h"
-#include <vector>
 
 using namespace std;
-void createTriangle();
+void createTriangles();
 void renderScence();
 void keyboardCallback(unsigned char key, int x, int y);
 void idle();
 
 vector<shared_ptr<Triangle>> triangles;
 
-glm::mat4 MVP;
+glm::mat4 VP_MATRIX;
 GLuint mvpID;
 
 int main(int argc, char *argv[])
@@ -40,19 +39,17 @@ int main(int argc, char *argv[])
 		glm::vec3(0, 0, 0), // looks at origin
 		glm::vec3(0, 1, 0)  // Head is up
 		);
-	glm::mat4 Model =  glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f, 0.0f , 1.0f ));
-	MVP = Projection * View * Model;
+	VP_MATRIX = Projection * View;
 
 	GLuint programID = LoadShaders("simpleVertexShader.vert", "simpleFragmentShader.frag");
 	glUseProgram(programID);
-	//theta = glGetUniformLocation(programID, "theta");
 	mvpID = glGetUniformLocation(programID, "MVP");
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyboardCallback);		
 	glutIdleFunc(idle);
 
-	createTriangle();
+	createTriangles();
 
 	glutMainLoop();			
 
@@ -63,27 +60,19 @@ int main(int argc, char *argv[])
 void renderScence()
 {
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-/*
-
 	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
-	glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.833, 0.833, 0));
-	glm::mat4 translateMatrixReverese = glm::translate(glm::mat4(1.0f), glm::vec3(-0.833, -0.833, 0));
-	glm::mat4 Model = translateMatrixReverese * rotationMatrix * translateMatrix;
-*/
-	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.0011f, glm::vec3(1, 1, 1));
 
 	for(auto triangle : triangles)
 	{
-		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
-		glm::mat4 translateReverseMatrix = glm::translate(glm::mat4(1.0f), -triangle->GetCenterOfMass());
-		glm::mat4 ModelMatrix = translateMatrix * rotationMatrix * translateReverseMatrix;
-		MVP *= ModelMatrix;
+		glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
+		glm::mat4 translateFromOrigin = glm::translate(glm::mat4(1.0f), -triangle->GetCenterOfMass());
+		glm::mat4 tranfromMatrix = translateToOrigin * rotationMatrix * translateFromOrigin;
+		triangle->ModelMatrix = triangle->ModelMatrix * tranfromMatrix;
+		glm::mat4 MVP = VP_MATRIX * triangle->ModelMatrix;
 		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 
 		triangle->Draw();
 	}
-
-
 	glutSwapBuffers();
 	
 }
@@ -100,7 +89,7 @@ void keyboardCallback(unsigned char key, int x, int y)
 		exit(EXIT_SUCCESS);
 }
 
-void createTriangle() {
+void createTriangles() {
 
 	 GLfloat firstTriangleVertices[] = {
 		-0.5f, -0.5f, 0.0f,
@@ -117,7 +106,7 @@ void createTriangle() {
 		1.0f, 1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 	};
-	//triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices)));
-	//triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices)));
+	triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices)));
+	triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices)));
 	triangles.push_back(std::move( std::make_shared<Triangle>(thirdTriangleVertices)));
 }

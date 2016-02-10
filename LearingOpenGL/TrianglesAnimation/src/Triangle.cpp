@@ -1,7 +1,6 @@
 #include "Triangle.h"
 
 
-
 Triangle::Triangle(GLfloat vertices[])
 {
 	for (int i = 0; i < _verticesLenght; i++)
@@ -9,6 +8,7 @@ Triangle::Triangle(GLfloat vertices[])
 		_vertecies[i] = vertices[i];
 	}
 	_centreOfMass = calculateCenterOfMass();
+	ModelMatrix = glm::mat4(1.0f);
 
 	glGenVertexArrays(1, &_vertexObjectArray);
 	glBindVertexArray(_vertexObjectArray);
