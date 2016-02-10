@@ -32,7 +32,7 @@ void Triangle::Draw()
 	glDisableVertexAttribArray(0);
 }
 
-glm::vec3 Triangle::GetCenterOfMass()
+glm::vec3  Triangle::GetCenterOfMass() const
 {
 	return _centreOfMass;
 }
@@ -42,13 +42,15 @@ glm::vec3 Triangle::calculateCenterOfMass() const
 	glm::vec3 centerOfMass;
 	for (int i = 0; i < 3; i++)
 	{
-		centerOfMass.x += _vertecies[i] / 3;
-		centerOfMass.y += _vertecies[i + 3] / 3;
-		centerOfMass.y += _vertecies[i + 6] / 3;
+		centerOfMass.x += _vertecies[i * 3] / 3;
+		centerOfMass.y += _vertecies[(i * 3 + 1)] / 3;
+		centerOfMass.y += _vertecies[i * 3 + 2] / 3;
 	}
 	return centerOfMass;
 }
 
 Triangle::~Triangle()
 {
+	glDeleteBuffers(1, &_vertexBuffer);
+	glDeleteVertexArrays(1, &_vertexObjectArray);
 }

@@ -30,7 +30,7 @@
   <ItemGroup>
     <None Include="shaders\rotationVerShader.vert" />
     <None Include="shaders\simpleFragmentShader.frag" />
-    <None Include="shader\simpleVertexShader.vert" />
+    <None Include="shaders\simpleVertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D5E53824-FEC4-4300-9D97-62833150546A}</ProjectGuid>

@@ -1,45 +1,52 @@
 #include <stdio.h>
 #include <iostream>
+#include <memory>
 
-#include <GL\glew.h>
+#include "GL\glew.h"
+#include "glut.h"
+
 #include <glm\glm.hpp>
 #include "glm/gtx/rotate_vector.hpp"
-#include <glut.h>
 
 #include "shader.h"
 #include "Triangle.h"
-#include <memory>
+#include <vector>
 
 using namespace std;
-void initVertexArray();
 void createTriangle();
 void renderScence();
 void keyboardCallback(unsigned char key, int x, int y);
 void idle();
 
-// Array of rotation angles (in degrees) for each coordinate axis
-enum { Xaxis = 0, Yaxis = 1, Zaxis = 2, NumAxes = 3 };
-int Axis = Xaxis;
-GLfloat Theta[NumAxes] = { 0.0, 0.0, 0.0 };
-GLuint theta; // The location of the "theta" shader uniform variable
+vector<shared_ptr<Triangle>> triangles;
 
-unique_ptr<Triangle> firstTriangle;
-unique_ptr<Triangle> secondTriangle;
-
+glm::mat4 MVP;
+GLuint mvpID;
 
 int main(int argc, char *argv[])
 {
-	int window;
 	glutInit(&argc, argv);		
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize(800, 600);		
-	window = glutCreateWindow("Triangles Animation");	
+	int window = glutCreateWindow("Triangles Animation");
+
 	glewInit();
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.7f, 0.7f, 1.0f);
-	GLuint programID = LoadShaders("rotationVerShader.vert", "simpleFragmentShader.frag");
+
+	glm::mat4 Projection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.0f, 10.0f);
+	glm::mat4 View = glm::lookAt(
+		glm::vec3(0, 0, 3), // where is
+		glm::vec3(0, 0, 0), // looks at origin
+		glm::vec3(0, 1, 0)  // Head is up
+		);
+	glm::mat4 Model =  glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(1.0f, 0.0f , 1.0f ));
+	MVP = Projection * View * Model;
+
+	GLuint programID = LoadShaders("simpleVertexShader.vert", "simpleFragmentShader.frag");
 	glUseProgram(programID);
-	theta = glGetUniformLocation(programID, "theta");
+	//theta = glGetUniformLocation(programID, "theta");
+	mvpID = glGetUniformLocation(programID, "MVP");
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyboardCallback);		
@@ -49,28 +56,40 @@ int main(int argc, char *argv[])
 
 	glutMainLoop();			
 
+	glDeleteProgram(programID);	
 	return 0;
 }
 
 void renderScence()
 {
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-	firstTriangle->Draw();
-	secondTriangle->Draw();
-	glUniform3fv(theta, 1, Theta);
+/*
+
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
+	glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.833, 0.833, 0));
+	glm::mat4 translateMatrixReverese = glm::translate(glm::mat4(1.0f), glm::vec3(-0.833, -0.833, 0));
+	glm::mat4 Model = translateMatrixReverese * rotationMatrix * translateMatrix;
+*/
+	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.0011f, glm::vec3(1, 1, 1));
+
+	for(auto triangle : triangles)
+	{
+		glm::mat4 translateMatrix = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
+		glm::mat4 translateReverseMatrix = glm::translate(glm::mat4(1.0f), -triangle->GetCenterOfMass());
+		glm::mat4 ModelMatrix = translateMatrix * rotationMatrix * translateReverseMatrix;
+		MVP *= ModelMatrix;
+		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
+
+		triangle->Draw();
+	}
+
+
 	glutSwapBuffers();
+	
 }
 
 void idle()
 {
-	for (int Axis = 0; Axis < 2; Axis++)
-	{
-		Theta[Axis] += 0.01f;
-		if (Theta[Axis] > 360.0) {
-			Theta[Axis] -= 360.0;
-		}
-	}
-
 	glutPostRedisplay();
 }
 
@@ -88,15 +107,17 @@ void createTriangle() {
 		0.5f, -0.5f, 0.0f,
 		0.0f,  0.5f, 0.0f,
 	};
-
-
-	firstTriangle = std::make_unique<Triangle>(firstTriangleVertices);
 	GLfloat secondTriangleVertices[] = {
 		-1.0f, -1.0f, 0.0f,
 		-0.5f, -1.0f, 0.0f,
 		-1.0f, -0.5f, 0.0f,
 	};
-	secondTriangle = std::make_unique<Triangle>(secondTriangleVertices);
-	printf("cetner of mass 1tri %f %f %f \n", firstTriangle->GetCenterOfMass().x, firstTriangle->GetCenterOfMass().y, firstTriangle->GetCenterOfMass().z);
-	printf("cetner of mass 2tri %f %f %f \n", secondTriangle->GetCenterOfMass().x, secondTriangle->GetCenterOfMass().y, secondTriangle->GetCenterOfMass().z);
+	GLfloat thirdTriangleVertices[] = {
+		-0.0f, -0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+	};
+	//triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices)));
+	//triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices)));
+	triangles.push_back(std::move( std::make_shared<Triangle>(thirdTriangleVertices)));
 }

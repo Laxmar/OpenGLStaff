@@ -8,7 +8,7 @@ public:
 	Triangle(GLfloat vertices[]);
 	~Triangle();
 	void Draw();
-	glm::vec3 GetCenterOfMass();
+	glm::vec3 GetCenterOfMass() const;
 
 private:
 	const static int _verticesLenght = 9;
