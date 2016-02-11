@@ -7,14 +7,10 @@ uniform vec3 center;
 
 void main()
 {
-	// Compute the sines and cosines of theta for each of
-	// the three axes in one computation.
 	vec3 angles = radians( theta );
 	vec3 c = cos( angles );
 	vec3 s = sin( angles );
 		
-
-	//these matrices are column-major
 	mat4 rx = mat4( 
 	1.0, 0.0, 0.0, 0.0,
 	0.0, c.x, -s.x, 0.0,
@@ -33,21 +29,6 @@ void main()
 	0.0, 0.0, 1.0, 0.0,
 	0.0, 0.0, 0.0, 1.0 );
 
-		
-	mat4 t1 = mat4(
-	1.0, 0.0, 0.0, 0.667,
-	0.0, 1.0, 0.0, 1.0,
-	0.0, 0.0, 1.0, 0.0,
-	0.0, 0.0, 0.0, 1.0 );
 
-	mat4 t2 = mat4(
-	1.0, 0.0, 0.0, -0.667,
-	0.0, 1.0, 0.0, -1.0,
-	0.0, 0.0, 1.0, 0.0,
-	0.0, 0.0, 0.0, 1.0 );
-
-
-	//gl_Position =  vPosition *t1* rx * ry * rz * t2 ;
 	gl_Position =  vPosition * rx * ry * rz;
-	//gl_Position = vPosition * t1;
 }

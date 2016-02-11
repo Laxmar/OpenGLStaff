@@ -1,9 +1,17 @@
 #version 330 core
 
-layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 0) in vec3 vertexPosition;
 
  uniform mat4 MVP;
+ uniform float angle;
 
 void main(){
-	gl_Position = MVP *  vec4(vertexPosition_modelspace, 1);
+	float angleRad = radians(angle);
+
+	vec4 oldPosition = MVP * vec4(vertexPosition, 1);
+    vec4 newPosition = oldPosition;
+    newPosition.y = oldPosition.x * cos(angleRad) - oldPosition.y * sin(angleRad);
+    newPosition.x = oldPosition.x * sin(angleRad) + oldPosition.y * cos(angleRad);
+	gl_Position = newPosition;
+
  }

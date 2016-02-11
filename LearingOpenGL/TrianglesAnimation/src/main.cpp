@@ -21,6 +21,9 @@ vector<shared_ptr<Triangle>> triangles;
 
 glm::mat4 VP_MATRIX;
 GLuint mvpID;
+GLuint angleAroudOriginID;
+float angleAroundOrigin = 0;
+
 
 int main(int argc, char *argv[])
 {
@@ -44,6 +47,7 @@ int main(int argc, char *argv[])
 	GLuint programID = LoadShaders("simpleVertexShader.vert", "simpleFragmentShader.frag");
 	glUseProgram(programID);
 	mvpID = glGetUniformLocation(programID, "MVP");
+	angleAroudOriginID = glGetUniformLocation(programID, "angle");
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyboardCallback);		
@@ -59,20 +63,26 @@ int main(int argc, char *argv[])
 
 void renderScence()
 {
+	angleAroundOrigin += 0.01;
+	if (angleAroundOrigin > 360)
+		angleAroundOrigin -= 360;
+
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
+	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
+	//glm::mat4 flyAway = glm::translate(glm::vec3(-0.0001, -0.0001, 0));
 
 	for(auto triangle : triangles)
 	{
 		glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
 		glm::mat4 translateFromOrigin = glm::translate(glm::mat4(1.0f), -triangle->GetCenterOfMass());
-		glm::mat4 tranfromMatrix = translateToOrigin * rotationMatrix * translateFromOrigin;
+		glm::mat4 tranfromMatrix = translateToOrigin * rotationAroundCenterOfMass * translateFromOrigin;
 		triangle->ModelMatrix = triangle->ModelMatrix * tranfromMatrix;
 		glm::mat4 MVP = VP_MATRIX * triangle->ModelMatrix;
 		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
-
+		glUniform1f(angleAroudOriginID, angleAroundOrigin);
 		triangle->Draw();
 	}
+
 	glutSwapBuffers();
 	
 }
