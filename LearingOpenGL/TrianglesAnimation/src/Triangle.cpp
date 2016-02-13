@@ -1,7 +1,8 @@
 #include "Triangle.h"
 
 
-Triangle::Triangle(GLfloat vertices[])
+Triangle::Triangle(GLfloat vertices[], Color& color) :
+	_color(color)
 {
 	for (int i = 0; i < _verticesLenght; i++)
 	{
@@ -23,13 +24,24 @@ Triangle::Triangle(GLfloat vertices[])
 	glDisableVertexAttribArray(0);
 }
 
-void Triangle::Draw()
+
+void Triangle::draw()
 {
 	glBindVertexArray(_vertexObjectArray);
 
 	glEnableVertexAttribArray(0);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 	glDisableVertexAttribArray(0);
+}
+
+void Triangle::setColor(Color& color)
+{
+	_color = color;
+}
+
+Color& Triangle::getColor()
+{
+	return _color;
 }
 
 glm::vec3  Triangle::GetCenterOfMass() const

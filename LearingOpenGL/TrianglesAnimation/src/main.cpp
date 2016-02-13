@@ -10,6 +10,7 @@
 
 #include "shader.h"
 #include "Triangle.h"
+#include "Color.h"
 
 using namespace std;
 void createTriangles();
@@ -22,6 +23,7 @@ vector<shared_ptr<Triangle>> triangles;
 glm::mat4 VP_MATRIX;
 GLuint mvpID;
 GLuint angleAroudOriginID;
+GLuint colorInID;
 float angleAroundOrigin = 0;
 
 
@@ -48,6 +50,7 @@ int main(int argc, char *argv[])
 	glUseProgram(programID);
 	mvpID = glGetUniformLocation(programID, "MVP");
 	angleAroudOriginID = glGetUniformLocation(programID, "angle");
+	colorInID = glGetUniformLocation(programID, "colorIn");
 
 	glutDisplayFunc(renderScence);		
 	glutKeyboardFunc(keyboardCallback);		
@@ -63,14 +66,9 @@ int main(int argc, char *argv[])
 
 void renderScence()
 {
-	angleAroundOrigin += 0.01;
-	if (angleAroundOrigin > 360)
-		angleAroundOrigin -= 360;
-
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
 	//glm::mat4 flyAway = glm::translate(glm::vec3(-0.0001, -0.0001, 0));
-
 	for(auto triangle : triangles)
 	{
 		glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
@@ -80,7 +78,8 @@ void renderScence()
 		glm::mat4 MVP = VP_MATRIX * triangle->ModelMatrix;
 		glUniformMatrix4fv(mvpID, 1, GL_FALSE, &MVP[0][0]);
 		glUniform1f(angleAroudOriginID, angleAroundOrigin);
-		triangle->Draw();
+		glUniform4fv(colorInID, 1, &(triangle->getColor().value[0]));
+		triangle->draw();
 	}
 
 	glutSwapBuffers();
@@ -89,6 +88,10 @@ void renderScence()
 
 void idle()
 {
+	angleAroundOrigin += 0.01;
+	if (angleAroundOrigin > 360)
+		angleAroundOrigin -= 360;
+
 	glutPostRedisplay();
 }
 
@@ -116,7 +119,7 @@ void createTriangles() {
 		1.0f, 1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
 	};
-	triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices)));
-	triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices)));
-	triangles.push_back(std::move( std::make_shared<Triangle>(thirdTriangleVertices)));
+	triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices, Color::oragne())));
+	triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices, Color::yellow())));
+	triangles.push_back(std::move( std::make_shared<Triangle>(thirdTriangleVertices, Color::pink())));
 }

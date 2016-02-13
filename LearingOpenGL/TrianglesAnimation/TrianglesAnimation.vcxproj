@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Color.cpp" />
     <ClCompile Include="src\loadShader.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Color.h" />
     <ClInclude Include="include\shader.h" />
     <ClInclude Include="include\Triangle.h" />
   </ItemGroup>
