@@ -13,10 +13,11 @@
 #include "Color.h"
 
 using namespace std;
-void createTriangles();
 void renderScence();
 void keyboardCallback(unsigned char key, int x, int y);
 void idle();
+void createFigure();
+void createQuarter(GLfloat* trianglesVertices);
 
 vector<shared_ptr<Triangle>> triangles;
 
@@ -25,6 +26,9 @@ GLuint mvpID;
 GLuint angleAroudOriginID;
 GLuint colorInID;
 float angleAroundOrigin = 0;
+
+const float speedAroundOrigin = 0.01f;
+const float speedAroundCenterOfMass = 0.0005f;
 
 
 int main(int argc, char *argv[])
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.0f, 0.7f, 0.7f, 1.0f);
 
-	glm::mat4 Projection = glm::ortho(-2.0f, 2.0f, -2.0f, 2.0f, 0.0f, 10.0f);
+	glm::mat4 Projection = glm::ortho(-8.0f, 8.0f, -8.0f, 8.0f, 0.0f, 10.0f);
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(0, 0, 3), // where is
 		glm::vec3(0, 0, 0), // looks at origin
@@ -56,7 +60,7 @@ int main(int argc, char *argv[])
 	glutKeyboardFunc(keyboardCallback);		
 	glutIdleFunc(idle);
 
-	createTriangles();
+	createFigure();
 
 	glutMainLoop();			
 
@@ -67,8 +71,8 @@ int main(int argc, char *argv[])
 void renderScence()
 {
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0f), 0.0011f,  glm::vec3(1, 1, 1));
-	//glm::mat4 flyAway = glm::translate(glm::vec3(-0.0001, -0.0001, 0));
+	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0f), speedAroundCenterOfMass, glm::vec3(1, 1, 1));
+	//glm::mat4 flyAway = glm::translate(glm::vec3(0.00001, -0.00000, 0));
 	for(auto triangle : triangles)
 	{
 		glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0f), triangle->GetCenterOfMass());
@@ -88,7 +92,7 @@ void renderScence()
 
 void idle()
 {
-	angleAroundOrigin += 0.01;
+	angleAroundOrigin += speedAroundOrigin;
 	if (angleAroundOrigin > 360)
 		angleAroundOrigin -= 360;
 
@@ -102,24 +106,66 @@ void keyboardCallback(unsigned char key, int x, int y)
 		exit(EXIT_SUCCESS);
 }
 
-void createTriangles() {
+void createFigure() {
 
-	 GLfloat firstTriangleVertices[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f,
+	const int trianglesNumber = 6;
+	GLfloat trianglesVertices[] = {
+		//blue
+		0.0f, 0.0f, 0.0f,
+		2.0f, 0.0f, 0.0f,
+		0.0f, 2.0f, 0.0f,
+		//greeen
+		0.0f, 2.0f, 0.0f,
+		0.0f, 4.0f, 0.0f,
+		2.0f, 2.0f, 0.0f,
+		//orange
+		2.0f, 0.0f, 0.0f,
+		4.0f, 0.0f, 0.0f,
+		2.0f, 2.0f, 0.0f,
+		//yellow
+		2.0f, 4.0f, 0.0f,
+		2.0f, 2.0f, 0.0f,
+		4.0f, 2.0f, 0.0f,
+		//pink
+		4.0f, 2.0f, 0.0f,
+		6.0f, 0.0f, 0.0f,
+		4.0f, 0.0f, 0.0f,
+		//red
+		0.0f, 6.0f, 0.0f,
+		0.0f, 4.0f, 0.0f,
+		2.0f, 4.0f, 0.0f,
 	};
-	GLfloat secondTriangleVertices[] = {
-		-1.0f, -1.0f, 0.0f,
-		-0.5f, -1.0f, 0.0f,
-		-1.0f, -0.5f, 0.0f,
-	};
-	GLfloat thirdTriangleVertices[] = {
-		-0.0f, -0.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-	};
-	triangles.push_back(std::move( std::make_shared<Triangle>(firstTriangleVertices, Color::oragne())));
-	triangles.push_back(std::move( std::make_shared<Triangle>(secondTriangleVertices, Color::yellow())));
-	triangles.push_back(std::move( std::make_shared<Triangle>(thirdTriangleVertices, Color::pink())));
+	createQuarter(trianglesVertices);
+
+	//flip vertical
+	for (int i = 0; i < trianglesNumber * 9; i += 3)
+	{
+		trianglesVertices[i] *= -1;
+	}
+	createQuarter(trianglesVertices);
+
+	//flip horizontall 
+	for (int i = 1; i < trianglesNumber * 9; i += 3)
+	{
+		trianglesVertices[i] *= -1;
+	}
+	createQuarter(trianglesVertices);
+
+	//flip vertical 
+	for (int i = 0; i < trianglesNumber * 9; i += 3)
+	{
+		trianglesVertices[i] *= -1;
+	}
+	createQuarter(trianglesVertices);
+
+}
+
+void createQuarter (GLfloat* trianglesVertices)
+{
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices, Color::blue())));
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices + 9, Color::green())));
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices + 18, Color::oragne())));
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices + 27, Color::yellow())));
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices + 36, Color::pink())));
+	triangles.push_back(std::move(std::make_shared<Triangle>(trianglesVertices + 45, Color::red())));
 }

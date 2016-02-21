@@ -18,7 +18,6 @@ public:
 
 	glm::vec4 value;
 
-	const static glm::vec4 a = glm::vec4(1, 1, 1,1);
 private:
 };
 

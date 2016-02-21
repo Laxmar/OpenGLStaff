@@ -10,8 +10,8 @@ void main(){
 
 	vec4 oldPosition = MVP * vec4(vertexPosition, 1);
     vec4 newPosition = oldPosition;
-    newPosition.y = oldPosition.x * cos(angleRad) - oldPosition.y * sin(angleRad);
-    newPosition.x = oldPosition.x * sin(angleRad) + oldPosition.y * cos(angleRad);
+    newPosition.x = oldPosition.x * cos(angleRad) - oldPosition.y * sin(angleRad);
+    newPosition.y = oldPosition.x * sin(angleRad) + oldPosition.y * cos(angleRad);
 	gl_Position = newPosition;
 
  }

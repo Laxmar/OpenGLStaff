@@ -4,8 +4,6 @@
 
  uniform vec4 colorIn;
 
-
  void main(){
-	//colorOut = vec4(1,0,0,0);
 	color = colorIn;
  }
