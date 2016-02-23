@@ -27,11 +27,15 @@ glm::mat4 VP_MATRIX;
 GLuint mvpID;
 GLuint angleAroudOriginID;
 GLuint colorInID;
-float angleAroundOrigin = 0;
 
-const float speedAroundOrigin = 0.01f;
-float speedAroundCenterOfMass = 0.001f;
-float flyAwaySpeed = 0.000001f;
+float angleAroundOrigin = 0;
+const float speedAroundOrigin = 0.02;
+
+float angleAroundCenterOfMass = 0;
+const float  speedAroundCenterOfMass = 0.001;
+
+float flyAwayValue = 0;
+const float flyAwaySpeed = 0.0003;
 
 
 int main(int argc, char *argv[])
@@ -82,14 +86,14 @@ void renderScence()
 
 	glClear((GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0), speedAroundCenterOfMass, glm::vec3(1.0, 1.0, 1.0));
-	glm::vec3 flyVec = glm::vec3(flyAwaySpeed, flyAwaySpeed, 0);
+	glm::mat4 rotationAroundCenterOfMass = glm::rotate(glm::mat4(1.0), angleAroundCenterOfMass, glm::vec3(1.0, 1.0, 1.0));
+	glm::vec3 flyVec = glm::vec3(flyAwayValue, flyAwayValue, 0);
 	for(auto triangle : triangles)
 	{
 		int flyX = 1, flyY = 1;
 		triangle->GetCenterOfMass().x > 0 ? flyX = 1 : flyX = -1;
 		triangle->GetCenterOfMass().y > 0 ? flyY = 1 : flyY = -1;
-		glm::mat4 flyAway = glm::translate(glm::mat4(1.0f), glm::vec3(flyVec.x * flyX, flyVec.y * flyY , flyVec.z) );
+		glm::mat4 flyAway = glm::translate(glm::mat4(1.0f), glm::vec3(flyVec.x * flyX, flyVec.y * flyY  , flyVec.z));
 		glm::mat4 translateToOrigin = glm::translate(glm::mat4(1.0), triangle->GetCenterOfMass());
 		glm::mat4 translateFromOrigin = glm::translate(glm::mat4(1.0), -triangle->GetCenterOfMass());
 		glm::mat4 rotationMatrix = translateToOrigin * rotationAroundCenterOfMass * translateFromOrigin;
@@ -109,9 +113,8 @@ void idle()
 	if (angleAroundOrigin > 360)
 		angleAroundOrigin -= 360;
 
-	speedAroundCenterOfMass += 0.001;
-	flyAwaySpeed += 0.0003;
-
+	angleAroundCenterOfMass += speedAroundCenterOfMass;
+	flyAwayValue += flyAwaySpeed;
 
 	glutPostRedisplay();
 }
